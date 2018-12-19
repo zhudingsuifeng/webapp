@@ -36,7 +36,7 @@ Python 3.6.7
 (venv)$pip install aiohttp
 (venv)$pip install jinja2
 (venv)$pip install aiomysql
-# [安装并配置mysql](https://github.com/zhudingsuifeng/platform/blob/master/mysql.md)
+[安装并配置mysql](https://github.com/zhudingsuifeng/platform/blob/master/mysql.md)
 $pip install mysql-connector
 ```
 
