@@ -25,7 +25,7 @@ webapp/            <-- 根目录
 +- LICENSE         <-- 代码LICENSE
 ```
 
-搭建开发环境
+### 搭建开发环境
 
 ```
 $cd webapp
@@ -36,11 +36,15 @@ Python 3.6.7
 (venv)$pip install aiohttp
 (venv)$pip install jinja2
 (venv)$pip install aiomysql
+```
+
 [安装并配置mysql](https://github.com/zhudingsuifeng/platform/mysql.md)
+
+```
 $pip install mysql-connector
 ```
 
-链接使用mysql服务器的web数据库
+### 链接使用mysql服务器的web数据库
 
 ```
 ```
