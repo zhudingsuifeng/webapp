@@ -47,4 +47,41 @@ $pip install mysql-connector
 ### 链接使用mysql服务器的web数据库
 
 ```
+import mysql.connector   # 导入Mysql驱动
+conn = mysql.connector.connect(user = 'fly', password  = 'password', database = 'web')
+# 链接数据库
+# 注意把password设为fly的密码
+# connect()链接对象
+cursor = conn.cursor()   # 游标对象
+cursor.execute('create table user (id varchar(20) primary key, name varchar(20))')     # 创建user表
+cursor.execute('insert into user(id, name) values(%s, %s), ['1', 'Michael'])
+# 插入一行记录，注意mysql的占位符是%s
+conn.commit()   # 提交事务
+cursor.close()
+conn.close()
+# 关闭cursor和connection
+```
+
+### pytahon数据库的connection和cursor对象
+
+connection对象支持的方法
+
+```
+cursor()   使用该链接创建并返回游标
+commit()   提交当前事务
+rollback() 回滚当前事务
+close()    关闭链接
+```
+
+游标对象用于执行查询和获取结果
+
+cursor对象支持的方法：
+
+```
+execute(op[,args])    执行一个数据库查询和命令
+fetchone()            取结果集的下一行
+fetchmany(size)       获取结果集的下几行
+fetchall()            获取结果集剩下的所有行
+rowcount              最近一次execute返回数据的行数或影响行数
+close()               关闭游标对象
 ```
