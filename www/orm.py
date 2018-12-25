@@ -7,13 +7,15 @@ import logging
 import asyncio
 import aiomysql
 
+# 将信息打印到控制台
 def log(sql, args=()):
     logging.info('SQL: %s' % sql)
+    # 打印info,warning,error,critical级别的日志
 
 # create a link pool
 async def create_pool(loop, **kw):
     logging.info('create database connection pool...')
-    global __pool
+    global __pool   # __pool私有全局属性
     __pool = await aiomysql.create_pool(
         host = kw.get('host', 'localhost'),
         port = kw.get('port', 3306),
@@ -21,25 +23,43 @@ async def create_pool(loop, **kw):
         password = kw['password'],
         db = kw['db'],
         charset = kw.get('charset', 'utf-8'),
-        autocommit = kw.get('autocommit', True),
+        autocommit = kw.get('autocommit', True),  # 默认自动提交事务
         maxsize = kw.get('maxsize', 10),
         minsize = kw.get('minsize', 1),
         loop = loop
     )
+    '''
+    create_pool(minsize, maxsize, loop=None,**kwargs) 协程，创建连接池，连接数据库。
+    minsize,maxsize线程池大小,loop可选事件循环实例，若未循环，使用asyncio.get_event_loop()
+    dict.get(key, default=None)返回指定键的值，如果值不在字典中，返回默认值。
+    '''
 
 # select in mysql
+# sql查询语句字符串
+# args 用来替换的参数
+# size 返回查询结果的行数
 async def select(sql, args, size=None):
-    log(sql, args)
+    log(sql, args)   # 显示相应级别的信息
     global __pool
     with (await __pool) as conn:
         cur = await conn.cursor(aiomysql.DictCursor)
+        # aiomysql.DictCursor返回字典类型的游标(cursor) 
+        # conn.cursor() 获取指向连接的游标(cursor)
+        # conn.cursor(aiomysql.DictCursor) 建立一个字典类型的游标
         await cur.execute(sql.replace('?', '%s'), args or ())
+        # cur.execute(query, args=None)执行指定操作query
+        # str.replace()
         if size:
             rs = await cur.fetchmany(size)
+            # 一次性返回size条查询结果，结果是一个list,里面是tuple
         else:
             rs = await from cur.fetchall()
+            # 返回所有查询结果
         await cur.close()
+        # 关闭游标对象,不用手动关闭连接(conn)，因为是在with语句里面，会自动关闭
+        # select不需要提交事务(commit)
         logging.info('rows returned: %s' % len(rs))
+        # 打印信息，受影响的行数
         return rs
 
 # insert, updata and delete in mysql
@@ -48,16 +68,22 @@ async def execute(sql, args, autocommit=True):
     with (await __pool) as conn:
         if not autocommint:
             await conn.begin()
+            # 开始数据库操作的协程 
         try:
             cur = await conn.cursor()
+            # 获取指向连接的游标(cursor)
             await cur.execute(sql.replace('?', '%s'), args)
+            # 
             affected = cur.rowcount
             await cur.close()
+            # 关闭游标对象
             if not autocommit:
                 await conn.commit()
+                # 提交数据修改的协程
         except BaseException as e:
             if not autocommit:
                 await conn.rollback()
+                # 回退到当前状态的协程
             raise
         return affected
 
@@ -124,7 +150,6 @@ class Model(dict, metaclass=ModelMetaclass):
     def __init__(self, **kw):
         super().__init__(**kw)
 
-
     def __getattr__(self, key):
         try:
             return self[key]
@@ -148,6 +173,25 @@ class Model(dict, metaclass=ModelMetaclass):
                 # setattr(object, name, value) 用于设置object对象的name属性值为value，该数行必须存在
                 setattr(self, key, value)
         return value
+    
+    async def save(self):
+        args = list(map(self.getValueOrDefault, self.__fields__))
+        args.append(self.getValueOrDefault(self.__primary_key__))
+        rows = await execute(self.__insert__, args)
+        if rows != 1:
+            logging.warn('failed to insert record: affecterd rows: %s' % rows)
+
+    async def update(self):
+
+
+
+    async def remove(self):
+
+
+    async def findAll(self):
+
+
+    async def findNumber():
 
 
 if __name__ == "__main__":
