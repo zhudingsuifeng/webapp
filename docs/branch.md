@@ -47,6 +47,12 @@ $git branch -a
   remotes/origin/works
 ```
 
+### 删除本地分支
+
+```
+git branch -d dev
+```
+
 ### 删除远程分支
 
 推送一个空分支到远程分支，其实就相当于删除远程分支：
