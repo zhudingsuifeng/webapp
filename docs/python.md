@@ -143,13 +143,57 @@ border_collie.herd(sheep)
 
     + 猴子补丁的主要作用功能便是在不去改变源码的情况下而对功能进行追加和变更，对于编程过程中使用一些第三方不满足需求的情况下，使用猴子补丁是非常方便的。
 
+- python中的namespace
+
+    + python中的名称空间是名称(标识符)到对象的映射。
+
+    + python为模块、函数、类、对象保存一个字典(__dict__)，里面就是从名称到对象的映射。
+
+- python命名空间namespace和作用域
+
+    + Python的变量定义之后都有自己的作用域，每个作用域内都有名字空间。
+
+    + 名称空间就是变量名称与对象的关联关系。
+
+    + Python中使用变量名引用对象，需要使用该变量时，就在命名空间中进行搜索，获取对应的对象。
+
+    + 直接访问一个变量，会在local(innermost)、enclosing、global(next-to-last)、built-in(outtermost)四个namespace中逐一搜索。
+
+    + local(innermost) 局部变量，函数内部的变量。
+
+    + enclosing 局部变量，闭包函数变量。
+
+    + global 全局变量，脚本文件无缩进的变量。
+
+    + built-in(outtermost) Python内置的变量和关键词。
+
+    + 搜索顺序 local->enclosing->global->built-in
+
+    + 每个函数都有这自己的名称空间，叫做局部名称空间。
+
+    + 每个局部名称空间的外部的名称空间，叫做封闭区域。
+
+    + 每个模块拥有它自己的名称空间，叫做全局名称空间。
+
+    + 还有就是内置名称空间，任何模块均可访问它，它存放这内置的函数和异常。
+
 - 什么是python字典？
 
-    + 字典是可变的
+    + 字典是一种可变容器模型，且可存储任意类型对象。
+
+    + 字典的每个键值key:value，每个键值对之间用,分割，整个字典包括在花括号{}中。
 
 - 能否解释一下*args和**kwargs？
 
-    + 
+    + *args和**kwargs主要用于定义函数的可变参数
+
+    + *args发送一个非键值对的可变数量的参数列表给函数
+
+    + **kwargs发送一个键值对的可变数量的参数列表给函数
+
+    + 如果想要在函数内使用带有名称的变量，那么使用**kwargs。
+
+    + 定义可变参数的目的是为了简化调用。 
 
 - 什么是负索引？
 
@@ -175,3 +219,52 @@ border_collie.herd(sheep)
 
     + 关键字不能作为标识符。
 
+- 交换变量值
+
+```
+import dis
+
+def swap1(a, b): 
+    temp = a
+    a = b
+    b = temp
+    # return a, b
+
+# 具有Python风格的变量交换
+def swap2(a, b): 
+    a, b = b, a
+    # return a, b
+
+if __name__ == "__main__":
+    print('--------------------------swap1-------------------------')
+    print(dis.dis(swap1))
+    print('--------------------------swap2-------------------------')
+    print(dis.dis(swap2))
+
+# dis反汇编工具，可以看到python的汇编字节码如下
+--------------------------swap1-------------------------
+  7           0 LOAD_FAST                0 (a)
+              2 STORE_FAST               2 (temp)
+
+  8           4 LOAD_FAST                1 (b)
+              6 STORE_FAST               0 (a)
+
+  9           8 LOAD_FAST                2 (temp)
+             10 STORE_FAST               1 (b)
+             12 LOAD_CONST               0 (None)
+             14 RETURN_VALUE
+None
+--------------------------swap2-------------------------
+ 13           0 LOAD_FAST                1 (b)
+              2 LOAD_FAST                0 (a)
+              4 ROT_TWO
+              6 STORE_FAST               0 (a)
+              8 STORE_FAST               1 (b)
+             10 LOAD_CONST               0 (None)
+             12 RETURN_VALUE
+None
+```
+
+    + ROT_TWO交换栈顶的两个元素实现a,b值的互换，swap1引入temp变量，多了一次LOAD_FAST,STORE_FAST的操作。
+
+    + 执行一个ROT_TWO指令比执行一个LOAD_FAST+STORE_FAST的指令快。
