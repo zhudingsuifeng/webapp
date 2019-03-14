@@ -268,3 +268,7 @@ None
     + ROT_TWO交换栈顶的两个元素实现a,b值的互换，swap1引入temp变量，多了一次LOAD_FAST,STORE_FAST的操作。
 
     + 执行一个ROT_TWO指令比执行一个LOAD_FAST+STORE_FAST的指令快。
+
+- is 和 == 的区别
+
+    + 
